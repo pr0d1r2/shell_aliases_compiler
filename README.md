@@ -27,3 +27,11 @@ echo "source $HOME/.compiled_shell_aliases.sh" >> ~/.zshrc```
 ```
 echo "source $HOME/.compiled_shell_aliases.sh" >> ~/.bash_profile```
 ```
+
+## updating
+
+Just run:
+
+```
+compile_shell_aliases
+```
