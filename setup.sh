@@ -1,5 +1,8 @@
 #!/bin/bash
 
+cd ~/projects/shell_aliases_compiler || return $?
+git pull || return $?
+
 for SOURCE in \
   git@github.com:pr0d1r2/plexus.git:bash_profile.d \
   ~/projects/local_shell_aliases \
