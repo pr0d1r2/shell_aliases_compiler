@@ -32,6 +32,14 @@ echo > $HOME/.compiled_shell_aliases.tmp
 
 for SOURCE_DIR in $SOURCE_DIRS
 do
+  if [ -d $SOURCE_DIR/.git ]; then
+    cd $SOURCE_DIR
+    git remote -v | grep fetch | grep -q origin
+    if [ $? -eq 0 ]; then
+      echo "Directory '$SOURCE_DIR' contains git fetch origin, running git pull ..."
+      git pull
+    fi
+  fi
   if [ -d $SOURCE_DIR ]; then
     for FILE in `ls $SOURCE_DIR/*.sh`
     do
