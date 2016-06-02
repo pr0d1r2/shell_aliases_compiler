@@ -1,12 +1,12 @@
 #!/bin/bash
 
-cd ~/projects/shell_aliases_compiler || return $?
+cd $HOME/projects/shell_aliases_compiler || return $?
 git pull || return $?
 
 for SOURCE in \
   git@github.com:pr0d1r2/plexus.git:bash_profile.d \
-  ~/projects/local_shell_aliases \
-  ~/projects/shell_aliases_compiler/shell_aliases.d \
+  $HOME/projects/local_shell_aliases \
+  $HOME/projects/shell_aliases_compiler/shell_aliases.d \
 
 do
   case $SOURCE in
