@@ -5,7 +5,7 @@ git pull || return $?
 
 for SOURCE in \
   git@github.com:pr0d1r2/plexus.git:bash_profile.d \
-  git@github.com:doubledrones/dt_shell_aliases.git:. \
+  git@gitlab.com:doubledrones/dt_shell_aliases.git:. \
   $HOME/projects/local_shell_aliases \
   $HOME/projects/shell_aliases_compiler/shell_aliases.d \
 
