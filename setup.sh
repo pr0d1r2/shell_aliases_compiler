@@ -21,7 +21,7 @@ do
         git clone $GIT_REPO ~/projects/$PROJECT_NAME || return $?
       else
         cd ~/projects/$PROJECT_NAME || return $?
-        git pull
+        git pull &
       fi
       SOURCE_DIRS="$SOURCE_DIRS $HOME/projects/$PROJECT_NAME/$SUBDIR"
       ;;
@@ -32,6 +32,8 @@ do
       ;;
   esac
 done
+
+wait # for parallel git pull to finish
 
 echo > $HOME/.compiled_shell_aliases.tmp
 
