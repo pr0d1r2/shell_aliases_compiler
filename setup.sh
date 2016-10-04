@@ -41,12 +41,25 @@ for SOURCE_DIR in $SOURCE_DIRS
 do
   if [ -d $SOURCE_DIR/.git ]; then
     cd $SOURCE_DIR
-    git remote -v | grep fetch | grep -q origin
+
+    git remote -v | grep fetch | grep origin | grep -q "\.local:"
     if [ $? -eq 0 ]; then
-      echo "Directory '$SOURCE_DIR' contains git fetch origin, running git pull ..."
-      git pull
+      echo "Directory '$SOURCE_DIR' contains local git fetch origin, running system git pull ..."
+      PATH="/usr/bin:/bin" /usr/bin/git pull &
+    else
+      git remote -v | grep fetch | grep -q origin
+      if [ $? -eq 0 ]; then
+        echo "Directory '$SOURCE_DIR' contains git fetch origin, running git pull ..."
+        git pull &
+      fi
     fi
   fi
+done
+
+wait # for parallel git pull to finish
+
+for SOURCE_DIR in $SOURCE_DIRS
+do
   if [ -d $SOURCE_DIR ]; then
     for FILE in `ls $SOURCE_DIR/*.sh`
     do
