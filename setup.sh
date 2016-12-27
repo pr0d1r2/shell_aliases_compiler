@@ -1,5 +1,11 @@
 #!/bin/bash
 
+case $1 in
+  -o | --offline)
+    OFFLINE=1
+    ;;
+esac
+
 cd $HOME/projects/shell_aliases_compiler || return $?
 git pull || return $?
 
@@ -21,11 +27,15 @@ do
       PROJECT_NAME=`echo $SOURCE | cut -f 2 -d / | cut -f 1 -d : | sed -e 's/.git//g'`
       SUBDIR=`echo $SOURCE | cut -f 2 -d / | cut -f 2 -d :`
       echo "Using $GIT_REPO as $HOME/projects/$PROJECT_NAME/$SUBDIR"
-      if [ ! -d ~/projects/$PROJECT_NAME ]; then
-        git clone $GIT_REPO ~/projects/$PROJECT_NAME || return $?
+      if [ -z $OFFLINE ]; then
+        if [ ! -d ~/projects/$PROJECT_NAME ]; then
+          git clone $GIT_REPO ~/projects/$PROJECT_NAME || return $?
+        else
+          cd ~/projects/$PROJECT_NAME || return $?
+          git pull &
+        fi
       else
-        cd ~/projects/$PROJECT_NAME || return $?
-        git pull &
+        echo "Using offline mode"
       fi
       SOURCE_DIRS="$SOURCE_DIRS $HOME/projects/$PROJECT_NAME/$SUBDIR"
       ;;
@@ -41,26 +51,28 @@ wait # for parallel git pull to finish
 
 echo > $HOME/.compiled_shell_aliases.tmp
 
-for SOURCE_DIR in $SOURCE_DIRS
-do
-  if [ -d $SOURCE_DIR/.git ]; then
-    cd $SOURCE_DIR
+if [ -z $OFFLINE ]; then
+  for SOURCE_DIR in $SOURCE_DIRS
+  do
+    if [ -d $SOURCE_DIR/.git ]; then
+      cd $SOURCE_DIR
 
-    git remote -v | grep fetch | grep origin | grep -q "\.local:"
-    if [ $? -eq 0 ]; then
-      echo "Directory '$SOURCE_DIR' contains local git fetch origin, running system git pull ..."
-      PATH="/usr/bin:/bin" /usr/bin/git pull &
-    else
-      git remote -v | grep fetch | grep -q origin
+      git remote -v | grep fetch | grep origin | grep -q "\.local:"
       if [ $? -eq 0 ]; then
-        echo "Directory '$SOURCE_DIR' contains git fetch origin, running git pull ..."
-        git pull &
+        echo "Directory '$SOURCE_DIR' contains local git fetch origin, running system git pull ..."
+        PATH="/usr/bin:/bin" /usr/bin/git pull &
+      else
+        git remote -v | grep fetch | grep -q origin
+        if [ $? -eq 0 ]; then
+          echo "Directory '$SOURCE_DIR' contains git fetch origin, running git pull ..."
+          git pull &
+        fi
       fi
     fi
-  fi
-done
+  done
 
-wait # for parallel git pull to finish
+  wait # for parallel git pull to finish
+fi
 
 for SOURCE_DIR in $SOURCE_DIRS
 do
