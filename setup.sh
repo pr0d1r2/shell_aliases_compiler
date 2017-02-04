@@ -76,15 +76,39 @@ if [ -z $OFFLINE ]; then
   wait # for parallel git pull to finish
 fi
 
-for SOURCE_DIR in $SOURCE_DIRS
-do
-  if [ -d $SOURCE_DIR ]; then
-    for FILE in `ls $SOURCE_DIR/*.sh`
+case `uname` in
+  Darwin)
+    MD5="md5"
+    ;;
+  *)
+    MD5="md5sum"
+    ;;
+esac
+
+function compile_directory_contents() {
+  local compile_directory_contents_FILE
+  if [ -d $1 ]; then
+    local compile_directory_contents_SOURCE_DIR_HASH=`echo $1 | $MD5`
+    for compile_directory_contents_FILE in `ls $1/*.sh`
     do
-      echo "Adding file: $FILE"
-      cat $FILE >> $HOME/.compiled_shell_aliases.tmp
+      echo "Adding file: $compile_directory_contents_FILE"
+      cat $compile_directory_contents_FILE >> $HOME/.compiled_shell_aliases.tmp.$compile_directory_contents_SOURCE_DIR_HASH
     done
   fi
+}
+
+for SOURCE_DIR in $SOURCE_DIRS
+do
+  compile_directory_contents $SOURCE_DIR &
+done
+
+wait # for parallel compilation
+
+for SOURCE_DIR in $SOURCE_DIRS
+do
+  SOURCE_DIR_HASH=`echo $SOURCE_DIR | $MD5`
+  cat $HOME/.compiled_shell_aliases.tmp.$SOURCE_DIR_HASH >> $HOME/.compiled_shell_aliases.tmp || exit $?
+  rm -f $HOME/.compiled_shell_aliases.tmp.$SOURCE_DIR_HASH || exit $?
 done
 
 mv $HOME/.compiled_shell_aliases.tmp $HOME/.compiled_shell_aliases.sh
