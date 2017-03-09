@@ -3,6 +3,7 @@ export SOURCES="
   git@github.com:pr0d1r2/osx_crond.git:shell_aliases.d
   git@github.com:pr0d1r2/ruby_dev_shell_aliases.git:.
   git@github.com:pr0d1r2/git_shell_aliases.git:.
+  git@github.com:pr0d1r2/github_shell_aliases.git:.
   git@github.com:pr0d1r2/osx_shell_aliases.git:.
   git@github.com:pr0d1r2/common_shell_aliases.git:.
   git@github.com:pr0d1r2/media_shell_aliases.git:.
