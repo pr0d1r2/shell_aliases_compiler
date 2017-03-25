@@ -18,7 +18,7 @@ source $D_R/.config.sh || return $?
 for SOURCE in $SOURCES
 do
   case $SOURCE in
-    git@github.com:?*:?* | git@gitlab.com:?*:?*)
+    git@github.com:?*:?* | git@gitlab.com:?*:?* | https://github.com/*)
       GIT_REPO=`echo $SOURCE | cut -f 1-2 -d :`
       PROJECT_NAME=`echo $SOURCE | cut -f 2 -d / | cut -f 1 -d : | sed -e 's/.git//g'`
       SUBDIR=`echo $SOURCE | cut -f 2 -d / | cut -f 2 -d :`
