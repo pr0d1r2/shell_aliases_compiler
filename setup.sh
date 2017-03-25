@@ -7,7 +7,9 @@ case $1 in
 esac
 
 cd $HOME/projects/shell_aliases_compiler || return $?
-git pull || return $?
+if [ -z $OFFLINE ]; then
+  git pull || return $?
+fi
 
 source .config.sh || return $?
 
