@@ -80,17 +80,18 @@ fi
 
 case `uname` in
   Darwin)
-    MD5="md5"
     ;;
   *)
-    MD5="md5sum"
+    function md5() {
+      md5sum | cut -f 1 -d ' '
+    }
     ;;
 esac
 
 function compile_directory_contents() {
   local compile_directory_contents_FILE
   if [ -d $1 ]; then
-    local compile_directory_contents_SOURCE_DIR_HASH=`echo $1 | $MD5`
+    local compile_directory_contents_SOURCE_DIR_HASH=`echo $1 | md5`
     for compile_directory_contents_FILE in `ls $1/*.sh`
     do
       echo "Adding file: $compile_directory_contents_FILE"
