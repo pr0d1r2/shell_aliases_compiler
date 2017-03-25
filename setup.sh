@@ -78,7 +78,9 @@ if [ -z $OFFLINE ]; then
   wait # for parallel git pull to finish
 fi
 
-case `uname` in
+UNAME=`uname`
+
+case $UNAME in
   Darwin)
     ;;
   *)
@@ -111,7 +113,18 @@ for SOURCE_DIR in $SOURCE_DIRS
 do
   echo "Merging $SOURCE_DIR ..."
   SOURCE_DIR_HASH=`echo $SOURCE_DIR | md5`
-  cat $HOME/.compiled_shell_aliases.tmp.$SOURCE_DIR_HASH >> $HOME/.compiled_shell_aliases.tmp || exit $?
+  case $UNAME in
+    Darwin)
+      cat $HOME/.compiled_shell_aliases.tmp.$SOURCE_DIR_HASH | \
+        grep -v " ##Linux$" | \
+        sed -e "s/ ##Darwin$//" >> $HOME/.compiled_shell_aliases.tmp || exit $?
+      ;;
+    Linux)
+      cat $HOME/.compiled_shell_aliases.tmp.$SOURCE_DIR_HASH | \
+        grep -v " ##Darwin$" | \
+        sed -e "s/ ##Linux$//" >> $HOME/.compiled_shell_aliases.tmp || exit $?
+      ;;
+  esac
   rm -f $HOME/.compiled_shell_aliases.tmp.$SOURCE_DIR_HASH || exit $?
 done
 
