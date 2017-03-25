@@ -110,7 +110,7 @@ wait # for parallel compilation
 for SOURCE_DIR in $SOURCE_DIRS
 do
   echo "Merging $SOURCE_DIR ..."
-  SOURCE_DIR_HASH=`echo $SOURCE_DIR | $MD5`
+  SOURCE_DIR_HASH=`echo $SOURCE_DIR | md5`
   cat $HOME/.compiled_shell_aliases.tmp.$SOURCE_DIR_HASH >> $HOME/.compiled_shell_aliases.tmp || exit $?
   rm -f $HOME/.compiled_shell_aliases.tmp.$SOURCE_DIR_HASH || exit $?
 done
