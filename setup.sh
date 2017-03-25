@@ -1,12 +1,14 @@
 #!/bin/bash
 
+D_R=`cd \`dirname $0\` ; pwd -P`
+cd $D_R || return $?
+
 case $1 in
   -o | --offline)
     OFFLINE=1
     ;;
 esac
 
-cd $HOME/projects/shell_aliases_compiler || return $?
 if [ -z $OFFLINE ]; then
   git pull || return $?
 fi
