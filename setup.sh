@@ -13,7 +13,7 @@ if [ -z $OFFLINE ]; then
   git pull || return $?
 fi
 
-source .config.sh || return $?
+source $D_R/.config.sh || return $?
 
 for SOURCE in $SOURCES
 do
