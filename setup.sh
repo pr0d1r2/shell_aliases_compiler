@@ -20,8 +20,16 @@ do
   case $SOURCE in
     git@github.com:?*:?* | git@gitlab.com:?*:?* | https://github.com/*)
       GIT_REPO=`echo $SOURCE | cut -f 1-2 -d :`
-      PROJECT_NAME=`echo $SOURCE | cut -f 2 -d / | cut -f 1 -d : | sed -e 's/.git//g'`
-      SUBDIR=`echo $SOURCE | cut -f 2 -d / | cut -f 2 -d :`
+      case $SOURCE in
+        git@github.com:?*:?* | git@gitlab.com:?*:?*)
+          DELIMITER_FIELD=2
+          ;;
+        https://github.com/*)
+          DELIMITER_FIELD=5
+          ;;
+      esac
+      PROJECT_NAME=`echo $SOURCE | cut -f $DELIMITER_FIELD -d / | cut -f 1 -d : | sed -e 's/.git//g'`
+      SUBDIR=`echo $SOURCE | cut -f $DELIMITER_FIELD -d / | cut -f 2 -d :`
       echo "Using $GIT_REPO as $HOME/projects/$PROJECT_NAME/$SUBDIR"
       if [ -z $OFFLINE ]; then
         if [ ! -d ~/projects/$PROJECT_NAME ]; then
