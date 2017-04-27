@@ -36,3 +36,11 @@ Just run:
 ```
 compile_shell_aliases
 ```
+
+### updating when offline
+
+Or when you do not want to make external requests:
+
+```
+compile_shell_aliases -o
+```
