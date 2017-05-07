@@ -13,6 +13,10 @@ if [ -z $OFFLINE ]; then
   git pull || return $?
 fi
 
+if [ ! -e $D_R/.config.sh ]; then
+  echo "shell_aliases_compiler: $D_R/.config.sh does not exist. Using example configuration ..."
+  cp $D_R/.config.sh.example $D_R/.config.sh || return $?
+fi
 source $D_R/.config.sh || return $?
 
 for SOURCE in $SOURCES
