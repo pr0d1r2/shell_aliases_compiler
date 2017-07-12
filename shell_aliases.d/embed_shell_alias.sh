@@ -1,13 +1,14 @@
 function embed_shell_alias() {
   local embed_shell_alias_NAME
+  local embed_shell_alias_BASE
   local embed_shell_alias_ATOM_LOCATION
   for embed_shell_alias_NAME in $@
   do
     local embed_shell_alias_FILE="$embed_shell_alias_NAME.sh"
     echo
     echo "Embedding '$embed_shell_alias_NAME' into '$embed_shell_alias_FILE'"
-    embed_shell_alias_ATOM_LOCATION=`shell_alias_location $embed_shell_alias_NAME`
-    case $embed_shell_alias_ATOM_LOCATION in
+    embed_shell_alias_BASE=`shell_alias_location $embed_shell_alias_NAME`
+    case $embed_shell_alias_BASE in
       "")
         echo "There is no '$embed_shell_alias_NAME' alias. Aborting!"
         return 10
@@ -22,8 +23,8 @@ function embed_shell_alias() {
       cat $embed_shell_alias_ATOM_LOCATION >> $embed_shell_alias_FILE
     done
 
-    echo $embed_shell_alias_ATOM_LOCATION
-    cat $embed_shell_alias_ATOM_LOCATION >> $embed_shell_alias_FILE
+    echo $embed_shell_alias_BASE
+    cat $embed_shell_alias_BASE >> $embed_shell_alias_FILE
 
     echo "$embed_shell_alias_NAME \$@ || exit \$?" >> $embed_shell_alias_FILE
   done
