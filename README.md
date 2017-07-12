@@ -56,3 +56,6 @@ embed_shell_alias my_fancy_shell_alias_with_multiple_dependencies
 
 Note that this can time time consuming for aliases with lots of
 dependencies.
+
+Be careful, as some of your aliases can contain sensitive data like API
+credentials - always review compilation result.
