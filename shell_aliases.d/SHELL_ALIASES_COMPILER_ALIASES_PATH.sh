@@ -1,0 +1,1 @@
+SHELL_ALIASES_COMPILER_ALIASES_PATH="$PROJECTS_PATH/shell_aliases_compiler/shell_aliases.d"
