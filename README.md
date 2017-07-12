@@ -44,3 +44,15 @@ Or when you do not want to make external requests:
 ```
 compile_shell_aliases -o
 ```
+
+## embedding
+
+If you want to give someone complete solution made out-of-your script
+atoms in form of single shell script you need to embed it:
+
+```
+embed_shell_alias my_fancy_shell_alias_with_multiple_dependencies
+```
+
+Note that this can time time consuming for aliases with lots of
+dependencies.
