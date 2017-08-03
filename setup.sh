@@ -3,11 +3,17 @@
 D_R=`cd \`dirname $0\` ; pwd -P`
 cd $D_R || return $?
 
-case $1 in
-  -o | --offline)
-    OFFLINE=1
-    ;;
-esac
+for PARAM in $@
+do
+  case $PARAM in
+    -o | --offline)
+      OFFLINE=1
+      ;;
+    -s | --silent)
+      SILENT=1
+      ;;
+  esac
+done
 
 if [ -z $OFFLINE ]; then
   git pull || return $?
@@ -34,7 +40,9 @@ do
       esac
       PROJECT_NAME=`echo $SOURCE | cut -f $DELIMITER_FIELD -d / | cut -f 1 -d : | sed -e 's/.git//g'`
       SUBDIR=`echo $SOURCE | cut -f $DELIMITER_FIELD -d / | cut -f 2 -d :`
-      echo "Using $GIT_REPO as $HOME/projects/$PROJECT_NAME/$SUBDIR"
+      if [ -z $SILENT ]; then
+        echo "Using $GIT_REPO as $HOME/projects/$PROJECT_NAME/$SUBDIR"
+      fi
       if [ -z $OFFLINE ]; then
         if [ ! -d ~/projects/$PROJECT_NAME ]; then
           git clone $GIT_REPO ~/projects/$PROJECT_NAME || return $?
@@ -43,7 +51,9 @@ do
           git pull &
         fi
       else
-        echo "Using offline mode"
+        if [ -z $SILENT ]; then
+          echo "Using offline mode"
+        fi
       fi
       SOURCE_DIRS="$SOURCE_DIRS $HOME/projects/$PROJECT_NAME/$SUBDIR"
       ;;
@@ -67,12 +77,16 @@ if [ -z $OFFLINE ]; then
 
       git remote -v | grep fetch | grep origin | grep -q "\.local:"
       if [ $? -eq 0 ]; then
-        echo "Directory '$SOURCE_DIR' contains local git fetch origin, running system git pull ..."
+        if [ -z $SILENT ]; then
+          echo "Directory '$SOURCE_DIR' contains local git fetch origin, running system git pull ..."
+        fi
         PATH="/usr/bin:/bin" /usr/bin/git pull &
       else
         git remote -v | grep fetch | grep -q origin
         if [ $? -eq 0 ]; then
-          echo "Directory '$SOURCE_DIR' contains git fetch origin, running git pull ..."
+          if [ -z $SILENT ]; then
+            echo "Directory '$SOURCE_DIR' contains git fetch origin, running git pull ..."
+          fi
           git pull &
         fi
       fi
@@ -100,7 +114,9 @@ function compile_directory_contents() {
     local compile_directory_contents_SOURCE_DIR_HASH=`echo $1 | md5`
     for compile_directory_contents_FILE in `ls $1/*.sh`
     do
-      echo "Adding file: $compile_directory_contents_FILE"
+      if [ -z $SILENT ]; then
+        echo "Adding file: $compile_directory_contents_FILE"
+      fi
       cat $compile_directory_contents_FILE >> $HOME/.compiled_shell_aliases.tmp.$compile_directory_contents_SOURCE_DIR_HASH
     done
   fi
@@ -115,7 +131,9 @@ wait # for parallel compilation
 
 for SOURCE_DIR in $SOURCE_DIRS
 do
-  echo "Merging $SOURCE_DIR ..."
+  if [ -z $SILENT ]; then
+    echo "Merging $SOURCE_DIR ..."
+  fi
   SOURCE_DIR_HASH=`echo $SOURCE_DIR | md5`
   case $UNAME in
     Darwin)
