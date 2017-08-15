@@ -60,6 +60,8 @@ do
     *)
       if [ -d $SOURCE ]; then
         SOURCE_DIRS="$SOURCE_DIRS $SOURCE"
+      elif [ -f "$SOURCE" ]; then
+        SOURCE_FILES="$SOURCE_FILES $SOURCE"
       fi
       ;;
   esac
@@ -149,6 +151,14 @@ do
       ;;
   esac
   rm -f $HOME/.compiled_shell_aliases.tmp.$SOURCE_DIR_HASH || exit $?
+done
+
+for SOURCE_FILE in $SOURCE_FILES
+do
+  if [ -z $SILENT ]; then
+    echo "Adding $SOURCE_FILE ..."
+  fi
+  cat $SOURCE_FILE >> $HOME/.compiled_shell_aliases.tmp
 done
 
 mv $HOME/.compiled_shell_aliases.tmp $HOME/.compiled_shell_aliases.sh
