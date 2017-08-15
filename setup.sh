@@ -25,6 +25,21 @@ if [ ! -e $D_R/.config.sh ]; then
 fi
 source $D_R/.config.sh || return $?
 
+for PRE_SETUP_TRIGGER in $PRE_SETUP_TRIGGERS
+do
+  if [ -z $SILENT ]; then
+    echo "Running pre-setup trigger: $PRE_SETUP_TRIGGER ..."
+  fi
+  case $PRE_SETUP_TRIGGER in
+    *.sh)
+      bash "$PRE_SETUP_TRIGGER" || exit $?
+      ;;
+    *.rb)
+      ruby "$PRE_SETUP_TRIGGER" || exit $?
+      ;;
+  esac
+done
+
 for SOURCE in $SOURCES
 do
   case $SOURCE in

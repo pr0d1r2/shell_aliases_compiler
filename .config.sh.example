@@ -18,3 +18,7 @@ export SOURCES="
   $HOME/projects/shell_aliases_compiler/shell_aliases.d
   $HOME/.toptoolkit.sh
 "
+
+export PRE_SETUP_TRIGGERS="
+  $HOME/projects/toptoolkit/setup.sh
+"
