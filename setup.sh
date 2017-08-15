@@ -32,10 +32,18 @@ do
   fi
   case $PRE_SETUP_TRIGGER in
     *.sh)
-      bash "$PRE_SETUP_TRIGGER" || exit $?
+      if [ -z $SILENT ]; then
+        bash "$PRE_SETUP_TRIGGER" || exit $?
+      else
+        bash "$PRE_SETUP_TRIGGER" &>/dev/null || exit $?
+      fi
       ;;
     *.rb)
-      ruby "$PRE_SETUP_TRIGGER" || exit $?
+      if [ -z $SILENT ]; then
+        ruby "$PRE_SETUP_TRIGGER" || exit $?
+      else
+        ruby "$PRE_SETUP_TRIGGER" &>/dev/null || exit $?
+      fi
       ;;
   esac
 done
