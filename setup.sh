@@ -117,7 +117,8 @@ function compile_directory_contents() {
       if [ -z $SILENT ]; then
         echo "Adding file: $compile_directory_contents_FILE"
       fi
-      cat $compile_directory_contents_FILE >> $HOME/.compiled_shell_aliases.tmp.$compile_directory_contents_SOURCE_DIR_HASH
+      cat "$compile_directory_contents_FILE" | \
+        grep -v -E "^\s{0,}#" >> "$HOME/.compiled_shell_aliases.tmp.$compile_directory_contents_SOURCE_DIR_HASH"
     done
   fi
 }
