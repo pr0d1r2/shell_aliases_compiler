@@ -126,6 +126,10 @@ UNAME=$(uname)
 
 case $UNAME in
   Darwin)
+    # shellcheck disable=SC2120
+    function tac() {
+      tail -r "$@"
+    }
     ;;
   *)
     function md5() {
@@ -139,8 +143,18 @@ function compile_directory_contents() {
   if [ -d "$1" ]; then
     local compile_directory_contents_SOURCE_DIR_HASH
     compile_directory_contents_SOURCE_DIR_HASH=$(echo "$1" | md5)
-    # shellcheck disable=SC2045,SC2086
-    for compile_directory_contents_FILE in $(ls $1/*.sh)
+    # shellcheck disable=SC2010,SC2045,SC2086
+    for compile_directory_contents_FILE in $(ls $1/[a-z]*.sh)
+    do
+      if [ -z $SILENT ]; then
+        echo "Adding file: $compile_directory_contents_FILE"
+      fi
+      grep -v -E "^\s{0,}#" "$compile_directory_contents_FILE" \
+        >> "$HOME/.compiled_shell_aliases.tmp.$compile_directory_contents_SOURCE_DIR_HASH"
+    done
+    compile_directory_contents_SOURCE_DIR_HASH=$(echo "$1-constants" | md5)
+    # shellcheck disable=SC2010,SC2045,SC2086
+    for compile_directory_contents_FILE in $(ls $1/[A-Z]*.sh 2>/dev/null)
     do
       if [ -z $SILENT ]; then
         echo "Adding file: $compile_directory_contents_FILE"
@@ -183,6 +197,27 @@ do
     echo "Adding $SOURCE_FILE ..."
   fi
   cat "$SOURCE_FILE" >> "$HOME/.compiled_shell_aliases.tmp"
+done
+
+for SOURCE_DIR in $SOURCE_DIRS
+do
+  if [ -z $SILENT ]; then
+    echo "Merging $SOURCE_DIR (constants) ..."
+  fi
+  SOURCE_DIR_HASH=$(echo "$SOURCE_DIR-constants" | md5)
+  if [ -f "$HOME/.compiled_shell_aliases.tmp.$SOURCE_DIR_HASH" ]; then
+    case $UNAME in
+      Darwin)
+        grep -v " ##Linux$" "$HOME/.compiled_shell_aliases.tmp.$SOURCE_DIR_HASH" | \
+          sed -e "s/ ##Darwin$//" >> "$HOME/.compiled_shell_aliases.tmp" || exit $?
+        ;;
+      Linux)
+        grep -v " ##Darwin$" "$HOME/.compiled_shell_aliases.tmp.$SOURCE_DIR_HASH" | \
+          sed -e "s/ ##Linux$//" >> "$HOME/.compiled_shell_aliases.tmp" || exit $?
+        ;;
+    esac
+    rm -f "$HOME/.compiled_shell_aliases.tmp.$SOURCE_DIR_HASH" || exit $?
+  fi
 done
 
 mv "$HOME/.compiled_shell_aliases.tmp" "$HOME/.compiled_shell_aliases.sh"
