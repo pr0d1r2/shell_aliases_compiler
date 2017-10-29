@@ -5,6 +5,7 @@ function shell_alias_dependencies() {
     local shell_alias_dependencies_FILE=`shell_alias_location $1`
     case $shell_alias_dependencies_FILE in
       "")
+        echo "WARNING: No file for: $1" 1>&2
         return 10
         ;;
     esac
