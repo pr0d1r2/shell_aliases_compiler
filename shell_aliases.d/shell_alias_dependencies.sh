@@ -52,6 +52,18 @@ function shell_alias_dependencies() {
     grep -v "^wc$" | \
     grep -v "^while$" | \
     grep -v "^expr$" | \
+    grep -v "^HOME$" | \
+    grep -v "^shellcheck$" | \
+    grep -v "^shell_aliases_compiler$" | \
+    grep -v "^source$" | \
+    grep -v "^eval$" | \
+    grep -v "^is$" | \
+    grep -v "^no$" | \
+    grep -v "^cat$" | \
+    grep -v "^tr$" | \
+    grep -v "^file$" | \
+    grep -v "^into$" | \
+    grep -v "^No$" | \
     grep -v "^$1$" | \
     grep -v "^$1_[A-Z0-9]"
 }
