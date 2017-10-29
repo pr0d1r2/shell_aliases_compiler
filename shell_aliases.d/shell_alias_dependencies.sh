@@ -1,8 +1,10 @@
 function shell_alias_dependencies() {
-  if [ -f $1 ]; then
+  local shell_alias_dependencies_FILE
+
+  if [ -f "$1" ]; then
     shell_alias_dependencies_FILE=$1
   else
-    local shell_alias_dependencies_FILE=`shell_alias_location $1`
+    shell_alias_dependencies_FILE=$(shell_alias_location "$1")
     case $shell_alias_dependencies_FILE in
       "")
         echo "WARNING: No file for: $1" 1>&2
@@ -11,11 +13,12 @@ function shell_alias_dependencies() {
     esac
   fi
 
-  cat $shell_alias_dependencies_FILE | \
+  # shellcheck disable=SC2002
+  cat "$shell_alias_dependencies_FILE" | \
     tr '`' ' ' | \
     tr '$' ' ' | \
     tr '/' ' ' | \
-    tr -s '[[:space:]]' '\n' | \
+    tr -s '[:space:]' '\n' | \
     grep "^[A-Za-z]" | \
     grep "[A-Za-z0-9]$" | \
     grep -v "[^A-Za-z0-9_]" | \
