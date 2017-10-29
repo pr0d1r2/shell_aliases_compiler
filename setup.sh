@@ -227,7 +227,7 @@ parallel \
   "source $HOME/projects/ubercommit/shell_aliases.d/UBERCOMMIT_PATH.sh && \
    source $HOME/projects/ubercommit/shell_aliases.d/ubercommit_add.sh && \
    source $HOME/projects/ubercommit/shell_aliases.d/ubercommit_add_file_suffix.sh && \
-   cd {} &&\
+   cd {} && cd \$(git rev-parse --show-toplevel) && \
    SKIP_EXAMPLES=1 ubercommit_add && git status -sb | grep -q \"^?? \" && \
    source $HOME/projects/ubercommit/shell_aliases.d/ubercommit_add_file_suffix_examples.sh && \
    ubercommit_add_file_suffix_examples sh" \
