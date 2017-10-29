@@ -22,8 +22,7 @@ function shell_alias_dependencies() {
     grep "^[A-Za-z]" | \
     grep "[A-Za-z0-9]$" | \
     grep -v "[^A-Za-z0-9_]" | \
-    sort | \
-    uniq | \
+    sort -u | \
     grep -v "^local$" | \
     grep -v "^done$" | \
     grep -v "^echo$" | \
