@@ -222,6 +222,9 @@ done
 
 mv "$HOME/.compiled_shell_aliases.tmp" "$HOME/.compiled_shell_aliases.sh"
 
+if [ -z $SILENT ]; then
+  echo "Setting up ubercommit hooks ..."
+fi
 # shellcheck disable=SC2086
 parallel \
   "source $HOME/projects/ubercommit/shell_aliases.d/UBERCOMMIT_PATH.sh && \
