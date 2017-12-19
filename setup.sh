@@ -27,6 +27,55 @@ fi
 source "$D_R/.config.sh" || return $?
 
 # shellcheck disable=SC2153
+for SOURCE in $SOURCES
+do
+  case $SOURCE in
+    git@github.com:?* | git@gitlab.com:?* | https://github.com/?*)
+      GIT_REPO=$(echo "$SOURCE" | cut -f 1-2 -d :)
+      case $SOURCE in
+        git@github.com:?*:?* | git@gitlab.com:?*:?*)
+          DELIMITER_FIELD=2
+          ;;
+        https://github.com/*)
+          DELIMITER_FIELD=5
+          ;;
+      esac
+      PROJECT_NAME=$(echo "$SOURCE" | cut -f $DELIMITER_FIELD -d / | cut -f 1 -d : | sed -e 's/.git//g')
+      case $SOURCE in
+        git@github.com:?*:?* | git@gitlab.com:?*:?* | https://github.com/?*:?*)
+          SUBDIR=$(echo "$SOURCE" | cut -f $DELIMITER_FIELD -d / | cut -f 2 -d :)
+          if [ -z $SILENT ]; then
+            echo "Using $GIT_REPO as $HOME/projects/$PROJECT_NAME/$SUBDIR"
+          fi
+          SOURCE_DIRS="$SOURCE_DIRS $HOME/projects/$PROJECT_NAME/$SUBDIR"
+          ;;
+      esac
+      if [ -z $OFFLINE ]; then
+        if [ ! -d "$HOME/projects/$PROJECT_NAME" ]; then
+          git clone "$GIT_REPO" "$HOME/projects/$PROJECT_NAME" || return $?
+        else
+          cd "$HOME/projects/$PROJECT_NAME" || return $?
+          git pull &
+        fi
+      else
+        if [ -z $SILENT ]; then
+          echo "Using offline mode"
+        fi
+      fi
+      ;;
+    *)
+      if [ -d "$SOURCE" ]; then
+        SOURCE_DIRS="$SOURCE_DIRS $SOURCE"
+      elif [ -f "$SOURCE" ]; then
+        SOURCE_FILES="$SOURCE_FILES $SOURCE"
+      fi
+      ;;
+  esac
+done
+
+wait # for parallel git pull to finish
+
+# shellcheck disable=SC2153
 for PRE_SETUP_TRIGGER in $PRE_SETUP_TRIGGERS
 do
   if [ -z $SILENT ]; then
@@ -49,51 +98,6 @@ do
       ;;
   esac
 done
-
-# shellcheck disable=SC2153
-for SOURCE in $SOURCES
-do
-  case $SOURCE in
-    git@github.com:?*:?* | git@gitlab.com:?*:?* | https://github.com/*)
-      GIT_REPO=$(echo "$SOURCE" | cut -f 1-2 -d :)
-      case $SOURCE in
-        git@github.com:?*:?* | git@gitlab.com:?*:?*)
-          DELIMITER_FIELD=2
-          ;;
-        https://github.com/*)
-          DELIMITER_FIELD=5
-          ;;
-      esac
-      PROJECT_NAME=$(echo "$SOURCE" | cut -f $DELIMITER_FIELD -d / | cut -f 1 -d : | sed -e 's/.git//g')
-      SUBDIR=$(echo "$SOURCE" | cut -f $DELIMITER_FIELD -d / | cut -f 2 -d :)
-      if [ -z $SILENT ]; then
-        echo "Using $GIT_REPO as $HOME/projects/$PROJECT_NAME/$SUBDIR"
-      fi
-      if [ -z $OFFLINE ]; then
-        if [ ! -d "$HOME/projects/$PROJECT_NAME" ]; then
-          git clone "$GIT_REPO" "$HOME/projects/$PROJECT_NAME" || return $?
-        else
-          cd "$HOME/projects/$PROJECT_NAME" || return $?
-          git pull &
-        fi
-      else
-        if [ -z $SILENT ]; then
-          echo "Using offline mode"
-        fi
-      fi
-      SOURCE_DIRS="$SOURCE_DIRS $HOME/projects/$PROJECT_NAME/$SUBDIR"
-      ;;
-    *)
-      if [ -d "$SOURCE" ]; then
-        SOURCE_DIRS="$SOURCE_DIRS $SOURCE"
-      elif [ -f "$SOURCE" ]; then
-        SOURCE_FILES="$SOURCE_FILES $SOURCE"
-      fi
-      ;;
-  esac
-done
-
-wait # for parallel git pull to finish
 
 echo > "$HOME/.compiled_shell_aliases.tmp"
 
