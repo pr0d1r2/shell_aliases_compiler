@@ -62,6 +62,9 @@ do
           echo "Using offline mode"
         fi
       fi
+      if [ -f "$HOME/projects/$PROJECT_NAME/.ruby-version" ]; then
+        RUBY_VERSIONS="$RUBY_VERSIONS $(cat "$HOME/projects/$PROJECT_NAME/.ruby-version")"
+      fi
       ;;
     *)
       if [ -d "$SOURCE" ]; then
@@ -73,7 +76,22 @@ do
   esac
 done
 
-wait # for parallel git pull to finish
+RUBY_VERSIONS=$(echo $RUBY_VERSIONS | tr ' ' "\n" | sort -u)
+for RUBY_VERSION in $RUBY_VERSIONS
+do
+  if [ ! -d "$HOME/.rbenv/versions/$RUBY_VERSION" ]; then
+    rbenv install $RUBY_VERSION &
+  fi
+done
+
+wait # for parallel git pull (and ruby install) to finish
+
+for RUBY_VERSION in $RUBY_VERSIONS
+do
+  "$HOME/.rbenv/versions/$RUBY_VERSION/bin/gem" install bundler --no-ri --no-rdoc &
+done
+
+wait # for parallel install of bundler
 
 # shellcheck disable=SC2153
 for PRE_SETUP_TRIGGER in $PRE_SETUP_TRIGGERS
