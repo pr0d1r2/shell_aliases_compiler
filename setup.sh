@@ -18,6 +18,15 @@ do
   esac
 done
 
+function cache_cleanup() {
+  if [ -z $SILENT ]; then
+    echo "Cleaning up cache files..."
+  fi
+  rm -f $HOME/.compiled_shell_aliases.tmp.*
+}
+
+cache_cleanup
+
 if [ -z $OFFLINE ]; then
   git pull || return $?
 fi
@@ -265,3 +274,5 @@ do
 done
 
 mv "$HOME/.compiled_shell_aliases.tmp" "$HOME/.compiled_shell_aliases.sh"
+
+cache_cleanup
