@@ -9,6 +9,9 @@ do
     -o | --offline)
       OFFLINE=1
       ;;
+    -c | --consistency-check)
+      CONSISTENCY_CHECK=1
+      ;;
     -s | --silent)
       SILENT=1
       ;;
@@ -160,6 +163,17 @@ case $UNAME in
     ;;
 esac
 
+function consistency_check() {
+  if [ -n $CONSISTENCY_CHECK ]; then
+    local consistency_check_ERR
+    source "$1"
+    if [ $? -gt 0 ]; then
+      echo "ERROR Adding file: $2"
+      return 1
+    fi
+  fi
+}
+
 function compile_directory_contents() {
   local compile_directory_contents_FILE
   if [ -d "$1" ]; then
@@ -173,6 +187,7 @@ function compile_directory_contents() {
       fi
       grep -v -E "^\s{0,}#" "$compile_directory_contents_FILE" \
         >> "$HOME/.compiled_shell_aliases.tmp.$compile_directory_contents_SOURCE_DIR_HASH"
+      consistency_check "$HOME/.compiled_shell_aliases.tmp.$compile_directory_contents_SOURCE_DIR_HASH" "$compile_directory_contents_FILE" || exit $?
     done
     compile_directory_contents_SOURCE_DIR_HASH=$(echo "$1-constants" | md5)
     # shellcheck disable=SC2010,SC2045,SC2086
@@ -183,16 +198,23 @@ function compile_directory_contents() {
       fi
       grep -v -E "^\s{0,}#" "$compile_directory_contents_FILE" \
         >> "$HOME/.compiled_shell_aliases.tmp.$compile_directory_contents_SOURCE_DIR_HASH"
+      consistency_check "$HOME/.compiled_shell_aliases.tmp.$compile_directory_contents_SOURCE_DIR_HASH" "$compile_directory_contents_FILE" || exit $?
     done
   fi
 }
 
 for SOURCE_DIR in $SOURCE_DIRS
 do
-  compile_directory_contents "$SOURCE_DIR" &
+  if [ -n $CONSISTENCY_CHECK ]; then
+    compile_directory_contents "$SOURCE_DIR" || exit $?
+  else
+    compile_directory_contents "$SOURCE_DIR" &
+  fi
 done
 
-wait # for parallel compilation
+if [ -z $CONSISTENCY_CHECK ]; then
+  wait # for parallel compilation
+fi
 
 for SOURCE_DIR in $SOURCE_DIRS
 do
