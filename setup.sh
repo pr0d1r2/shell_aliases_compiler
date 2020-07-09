@@ -12,6 +12,9 @@ do
     -c | --consistency-check)
       CONSISTENCY_CHECK=1
       ;;
+    -C | --shell-check)
+      SHELL_CHECK=1
+      ;;
     -s | --silent)
       SILENT=1
       ;;
@@ -211,6 +214,11 @@ function compile_directory_contents() {
     done
   fi
 }
+
+if [ -n $SHELL_CHECK ]; then
+  parallel "find {} -type f -name '*.sh'" ::: $SOURCE_DIRS | \
+    parallel --halt-on-error now,fail=1 "shellcheck -e SC2148 {}" || exit $?
+fi
 
 for SOURCE_DIR in $SOURCE_DIRS
 do
