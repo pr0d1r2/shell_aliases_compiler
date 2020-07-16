@@ -176,7 +176,7 @@ case $UNAME in
 esac
 
 function consistency_check() {
-  if [ -n $CONSISTENCY_CHECK ]; then
+  if [ -n "$CONSISTENCY_CHECK" ]; then
     local consistency_check_ERR
     source "$1"
     if [ $? -gt 0 ]; then
@@ -194,7 +194,7 @@ function compile_directory_contents() {
     # shellcheck disable=SC2010,SC2045,SC2086
     for compile_directory_contents_FILE in $(ls $1/[a-z]*.sh)
     do
-      if [ -z $SILENT ]; then
+      if [ -z "$SILENT" ]; then
         echo "Adding file: $compile_directory_contents_FILE"
       fi
       grep -v -E "^\s{0,}#" "$compile_directory_contents_FILE" \
@@ -215,21 +215,21 @@ function compile_directory_contents() {
   fi
 }
 
-if [ -n $SHELL_CHECK ]; then
+if [ -n "$SHELL_CHECK" ]; then
   parallel "find {} -type f -name '*.sh'" ::: $SOURCE_DIRS | \
     parallel --halt-on-error now,fail=1 "shellcheck -e SC2148 {}" || exit $?
 fi
 
 for SOURCE_DIR in $SOURCE_DIRS
 do
-  if [ -n $CONSISTENCY_CHECK ]; then
+  if [ -n "$CONSISTENCY_CHECK" ]; then
     compile_directory_contents "$SOURCE_DIR" || exit $?
   else
     compile_directory_contents "$SOURCE_DIR" &
   fi
 done
 
-if [ -z $CONSISTENCY_CHECK ]; then
+if [ -z "$CONSISTENCY_CHECK" ]; then
   wait # for parallel compilation
 fi
 
