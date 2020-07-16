@@ -103,7 +103,7 @@ wait # for parallel git pull (and ruby install) to finish
 
 for RUBY_VERSION in $RUBY_VERSIONS
 do
-  "$HOME/.rbenv/versions/$RUBY_VERSION/bin/gem" install bundler --no-ri --no-rdoc &
+  "$HOME/.rbenv/versions/$RUBY_VERSION/bin/gem" install bundler --no-document &
 done
 
 wait # for parallel install of bundler
