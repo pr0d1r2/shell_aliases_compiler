@@ -28,10 +28,16 @@ function cache_cleanup() {
   rm -f $HOME/.compiled_shell_aliases.tmp.*
 }
 
+# Functions
+for SOURCE in $(find "$D_R/setup.d" -maxdepth 1 -name '*.sh')
+do
+  source "$SOURCE"
+done
+
 cache_cleanup
 
 if [ -z $OFFLINE ]; then
-  git pull || return $?
+  when_online true && git pull || return $?
 fi
 
 if [ ! -e "$D_R/.config.sh" ]; then
@@ -66,6 +72,7 @@ do
           ;;
       esac
       if [ -z $OFFLINE ]; then
+        when_online true
         if [ ! -d "$HOME/projects/$PROJECT_NAME" ]; then
           git clone "$GIT_REPO" "$HOME/projects/$PROJECT_NAME" || return $?
         else
@@ -91,22 +98,25 @@ do
   esac
 done
 
-RUBY_VERSIONS=$(echo $RUBY_VERSIONS | tr ' ' "\n" | sort -u)
-for RUBY_VERSION in $RUBY_VERSIONS
-do
-  if [ ! -d "$HOME/.rbenv/versions/$RUBY_VERSION" ]; then
-    rbenv install $RUBY_VERSION &
-  fi
-done
+if [ -z $OFFLINE ]; then
+  RUBY_VERSIONS=$(echo $RUBY_VERSIONS | tr ' ' "\n" | sort -u)
+  for RUBY_VERSION in $RUBY_VERSIONS
+  do
+    if [ ! -d "$HOME/.rbenv/versions/$RUBY_VERSION" ]; then
+      when_online true
+      rbenv install $RUBY_VERSION &
+    fi
+  done
+  wait # for parallel git pull (and ruby install) to finish
 
-wait # for parallel git pull (and ruby install) to finish
+  for RUBY_VERSION in $RUBY_VERSIONS
+  do
+    when_online true
+    "$HOME/.rbenv/versions/$RUBY_VERSION/bin/gem" install bundler --no-document &
+  done
+  wait # for parallel install of bundler
+fi
 
-for RUBY_VERSION in $RUBY_VERSIONS
-do
-  "$HOME/.rbenv/versions/$RUBY_VERSION/bin/gem" install bundler --no-document &
-done
-
-wait # for parallel install of bundler
 
 # shellcheck disable=SC2153
 for PRE_SETUP_TRIGGER in $PRE_SETUP_TRIGGERS
@@ -150,7 +160,7 @@ if [ -z $OFFLINE ]; then
           if [ -z $SILENT ]; then
             echo "Directory '$SOURCE_DIR' contains git fetch origin, running git pull ..."
           fi
-          git pull &
+          when_online true && git pull &
         fi
       fi
     fi
