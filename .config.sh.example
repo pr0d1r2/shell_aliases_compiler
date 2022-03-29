@@ -23,10 +23,7 @@ export SOURCES="
   git@gitlab.com:pr0d1r2/rua.git:shell_aliases.d
   $HOME/projects/local_shell_aliases
   $HOME/projects/shell_aliases_compiler/shell_aliases.d
-  $HOME/.toptoolkit.sh
-  git@github.com:toptal/toptoolkit.git
 "
 
 export PRE_SETUP_TRIGGERS="
-  $HOME/projects/toptoolkit/setup.sh
 "
