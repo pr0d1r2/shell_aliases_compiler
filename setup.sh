@@ -25,7 +25,7 @@ function cache_cleanup() {
   if [ -z $SILENT ]; then
     echo "Cleaning up cache files..."
   fi
-  rm -f $HOME/.compiled_shell_aliases.tmp.*
+  rm -f $HOME/.compiled_shell_aliases.tmp.* || true
 }
 
 # Functions
